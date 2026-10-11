@@ -33,9 +33,9 @@ class Config:
 
     # ----- tunables (all optional)
     @property
-    def flash(self): return _get("GEMINI_FLASH_MODEL", "gemini-2.5-flash")
+    def flash(self): return _get("GEMINI_FLASH_MODEL", "gemini-3.8-flash")
     @property
-    def pro(self): return _get("GEMINI_PRO_MODEL", "gemini-2.5-pro")
+    def pro(self): return _get("GEMINI_PRO_MODEL", "gemini-3.8-pro")
     @property
     def min_gap(self): return float(_get("GEMINI_MIN_GAP_SECONDS", "6"))
     @property
