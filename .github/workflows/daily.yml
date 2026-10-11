@@ -1,0 +1,53 @@
+name: Daily internships and bullets
+
+on:
+  schedule:
+    - cron: "30 2 * * *"   # 02:30 UTC = 08:00 IST. GitHub may start it a few minutes late.
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Ingest emails and generate bullets
+        run: python -m src.main daily
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GEMINI_FLASH_MODEL: ${{ vars.GEMINI_FLASH_MODEL }}
+          GEMINI_PRO_MODEL: ${{ vars.GEMINI_PRO_MODEL }}
+          GMAIL_LABEL: ${{ vars.GMAIL_LABEL }}
+          GMAIL_LOOKBACK_DAYS: ${{ vars.GMAIL_LOOKBACK_DAYS }}
+          ALLOWED_MODES: ${{ vars.ALLOWED_MODES }}
+          KEEP_UNKNOWN_STIPEND: ${{ vars.KEEP_UNKNOWN_STIPEND }}
+          MAX_JOBS_PER_DAY: ${{ vars.MAX_JOBS_PER_DAY }}
+          MIN_KW_COVERAGE: ${{ vars.MIN_KW_COVERAGE }}
+      - name: Alert me on failure
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl -s -o /dev/null -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            -d chat_id="${TG_CHAT}" \
+            --data-urlencode "text=⚠️ Daily internship run failed: ${RUN_URL}"

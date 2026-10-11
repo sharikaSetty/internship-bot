@@ -1,0 +1,4 @@
+fact_id,item,type,fact,tools,metric
+P01,EXAMPLE Project Name,project,"What you built or did, in one plain sentence","Python, FastAPI","a real number if you have one"
+P02,EXAMPLE Project Name,project,"A second separate fact about the same project","Supabase",""
+P03,EXAMPLE Internship or Role,experience,"What you did there","",""
