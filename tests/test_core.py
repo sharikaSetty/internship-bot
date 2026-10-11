@@ -142,6 +142,26 @@ def test_run_ingest_end_to_end():
     assert ingest.run_ingest(sheet, fetch=lambda d, l: emails, call=call, tg=tg) == [] and tg.sent == []
 
 
+def test_ingest_extracts_only_the_newest_email():
+    """Gemini quota: older unread alerts are not sent to the extractor."""
+    sheet, tg = FakeSheet(), FakeTG()
+    emails = [{"msg_id": str(i), "subject": f"S{i}", "from": "f", "text": "t"} for i in range(5)]
+    seen = []
+
+    def call(model, system, user, schema, temperature=0.2, max_tokens=8192):
+        seen.append(user)
+        return {"internships": [{"company": "Acme AI", "title": "ML Intern", "work_mode": "remote",
+                                  "is_paid": True, "stipend_amount": 10000}]}
+
+    os.environ["GMAIL_MAX_EMAILS"] = "1"
+    try:
+        rows = ingest.run_ingest(sheet, fetch=lambda d, l: emails, call=call, tg=tg)
+    finally:
+        del os.environ["GMAIL_MAX_EMAILS"]
+    assert len(seen) == 1 and "EMAIL SUBJECT: S4" in seen[0]  # only the latest email
+    assert len(rows) == 1 and len(sheet.tabs["jobs"]) == 1
+
+
 # ------------------------------------------------------------------ bullets
 def _state():
     return {"facts": FACTS, "s3": {"plan": [{"item_name": "QuantumTrade"}, {"item_name": "Bhumi"}]},

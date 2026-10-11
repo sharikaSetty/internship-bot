@@ -80,12 +80,14 @@ Repo → **Settings → Secrets and variables → Actions → New repository sec
 | `GMAIL_APP_PASSWORD` | the 16-character app password |
 
 Optional **Variables** (same page, Variables tab); none are needed to start:
-`GEMINI_FLASH_MODEL`, `GEMINI_PRO_MODEL` (defaults `gemini-2.5-flash` and `gemini-2.5-pro`), `GMAIL_LABEL`, `GMAIL_LOOKBACK_DAYS` (7), `ALLOWED_MODES` (remote), `KEEP_UNKNOWN_STIPEND` (false), `MAX_JOBS_PER_DAY` (5), `MIN_KW_COVERAGE` (0.4), `PASS_THRESHOLD` (7).
+`GEMINI_FLASH_MODEL`, `GEMINI_PRO_MODEL` (defaults `gemini-2.5-flash` and `gemini-2.5-pro`), `GMAIL_LABEL`, `GMAIL_LOOKBACK_DAYS` (7), `GMAIL_MAX_EMAILS` (1), `ALLOWED_MODES` (remote), `KEEP_UNKNOWN_STIPEND` (false), `MAX_JOBS_PER_DAY` (5), `MIN_KW_COVERAGE` (0.4), `PASS_THRESHOLD` (7).
+
+> **Gemini quota:** only the **newest `GMAIL_MAX_EMAILS` email (default 1)** is sent to Gemini on each run. Older alerts in the label are skipped, so raise `GMAIL_MAX_EMAILS` (for example to 3) if you are fine spending more quota and want deeper backfill. Gmail still reads the whole label; only extraction is capped.
 
 ## Step 6: First runs (do these by hand)
 
 1. Make sure the `profile` tab is filled in (15–25 real facts; see `sheet_templates/profile_template.csv`).
-2. **Actions → Daily internships and bullets → Run workflow.** Watch the log: you should see lines like `ingest: 12 emails, 0 failed, 3 new jobs` and `generate: 3 picked, 3 sent, 0 failed`. You then get Telegram messages.
+2. **Actions → Daily internships and bullets → Run workflow.** Watch the log: you should see lines like `ingest: 1 email, 0 failed, 3 new jobs` (only the latest alert is extracted) and `generate: 3 picked, 3 sent, 0 failed`. You then get Telegram messages.
 3. Reply to one bot message with a PDF. Then **Actions → Check resume uploads → Run workflow** (or wait up to 15 minutes). You should get your PDF back with the score.
 
 ## Schedules and timing

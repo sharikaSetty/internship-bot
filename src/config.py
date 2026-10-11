@@ -43,6 +43,10 @@ class Config:
     @property
     def lookback_days(self): return int(_get("GMAIL_LOOKBACK_DAYS", "7"))
     @property
+    def max_emails(self):
+        """Newest emails to send to Gemini per run (quota guard)."""
+        return max(1, int(_get("GMAIL_MAX_EMAILS", "1")))
+    @property
     def allowed_modes(self): return [m.strip().lower() for m in _get("ALLOWED_MODES", "remote").split(",") if m.strip()]
     @property
     def keep_unknown_stipend(self): return _get("KEEP_UNKNOWN_STIPEND", "false").lower() == "true"

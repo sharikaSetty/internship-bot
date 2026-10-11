@@ -38,6 +38,7 @@ jobs:
           GEMINI_PRO_MODEL: ${{ vars.GEMINI_PRO_MODEL }}
           GMAIL_LABEL: ${{ vars.GMAIL_LABEL }}
           GMAIL_LOOKBACK_DAYS: ${{ vars.GMAIL_LOOKBACK_DAYS }}
+          GMAIL_MAX_EMAILS: ${{ vars.GMAIL_MAX_EMAILS }}
           ALLOWED_MODES: ${{ vars.ALLOWED_MODES }}
           KEEP_UNKNOWN_STIPEND: ${{ vars.KEEP_UNKNOWN_STIPEND }}
           MAX_JOBS_PER_DAY: ${{ vars.MAX_JOBS_PER_DAY }}

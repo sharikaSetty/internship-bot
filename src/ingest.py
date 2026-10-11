@@ -59,7 +59,13 @@ def summary_text(rows):
 
 
 def run_ingest(sheet, fetch=fetch_emails, call=None, tg=telegram):
-    emails = fetch(cfg.lookback_days, cfg.gmail_label)
+    emails = list(fetch(cfg.lookback_days, cfg.gmail_label))
+    # Gemini quota: only the newest GMAIL_MAX_EMAILS message(s) are extracted.
+    # fetch() returns messages oldest -> newest, so keep the tail.
+    if len(emails) > cfg.max_emails:
+        skipped = len(emails) - cfg.max_emails
+        emails = emails[-cfg.max_emails:]
+        print(f"ingest: skipping {skipped} older emails, extracting the newest {cfg.max_emails}", flush=True)
     per, failed = [], 0
     for idx, em in enumerate(emails, 1):
         print(f"Extracting email {idx}/{len(emails)}: '{em.get('subject', '')[:40]}'...", flush=True)
@@ -77,5 +83,6 @@ def run_ingest(sheet, fetch=fetch_emails, call=None, tg=telegram):
     sheet.append("jobs", rows)
     if rows:
         tg.send_message(summary_text(rows))
-    print(f"ingest: {len(emails)} emails, {failed} failed, {len(rows)} new jobs")  # counts only: logs are public
+    # counts only: logs are public
+    print(f"ingest: {len(emails)} email{'' if len(emails) == 1 else 's'}, {failed} failed, {len(rows)} new jobs")
     return rows
