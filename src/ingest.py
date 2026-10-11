@@ -64,8 +64,9 @@ def run_ingest(sheet, fetch=fetch_emails, call=None, tg=telegram):
     for em in emails:
         try:
             per.append((em["subject"], extract_listings(em, call)))
-        except Exception:
+        except Exception as e:
             failed += 1
+            print(f"extract failed for email '{em.get('subject', '')[:40]}': {type(e).__name__}: {e}")
     if emails and failed == len(emails):
         raise RuntimeError("Every email failed during extraction")
     existing = sheet.read("jobs")
