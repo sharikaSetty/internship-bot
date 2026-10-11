@@ -258,9 +258,11 @@ def run_generate(sheet, call=None, tg=telegram, page_fetcher=fetch_page, sleep=t
     if not facts:
         raise RuntimeError('The "profile" tab has no rows with fact_id and fact filled in.')
     picked = pick_jobs(sheet.read("jobs"), cfg.max_jobs)
+    print(f"generate: picked {len(picked)} jobs to process", flush=True)
     done, failed = 0, 0
     for n, job in enumerate(picked):
         code = job.get("job_code", "?")
+        print(f"generate: processing job {n+1}/{len(picked)} ({code})...", flush=True)
         try:
             # count the attempt first, so one bad job can never block the queue forever
             sheet.update("jobs", "job_key", job["job_key"], {"attempts": int(float(job.get("attempts") or 0)) + 1})

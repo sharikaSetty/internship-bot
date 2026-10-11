@@ -22,6 +22,7 @@ def fetch_emails(lookback_days, label, limit=40):
             raise RuntimeError(f'Gmail label "{label}" was not found over IMAP')
         typ, data = imap.search(None, "SINCE", since)
         ids = (data[0] or b"").split()[-limit:]
+        print(f"Gmail IMAP: found {len(ids)} emails in '{label}' since {since}", flush=True)
         for i in ids:
             typ, msg_data = imap.fetch(i, "(RFC822)")
             if typ != "OK" or not msg_data or not msg_data[0]:

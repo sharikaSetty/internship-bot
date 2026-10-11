@@ -45,15 +45,17 @@ def call(model, system, user, schema, temperature=0.2, max_tokens=8192, retries=
         if wait > 0:
             time.sleep(wait)
         try:
+            print(f"Calling Gemini ({model})...", flush=True)
             r = requests.post(
                 URL.format(model=model),
                 headers={"x-goog-api-key": cfg.gemini_key, "Content-Type": "application/json"},
                 json=body,
-                timeout=180,
+                timeout=60,
             )
-        except requests.RequestException:
+        except requests.RequestException as e:
             _last_call = time.time()
-            last_err = "network error"
+            last_err = f"network error ({type(e).__name__})"
+            print(f"Gemini request exception: {type(e).__name__}", flush=True)
         else:
             _last_call = time.time()
             if r.status_code == 200:

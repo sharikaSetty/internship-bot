@@ -61,12 +61,13 @@ def summary_text(rows):
 def run_ingest(sheet, fetch=fetch_emails, call=None, tg=telegram):
     emails = fetch(cfg.lookback_days, cfg.gmail_label)
     per, failed = [], 0
-    for em in emails:
+    for idx, em in enumerate(emails, 1):
+        print(f"Extracting email {idx}/{len(emails)}: '{em.get('subject', '')[:40]}'...", flush=True)
         try:
             per.append((em["subject"], extract_listings(em, call)))
         except Exception as e:
             failed += 1
-            print(f"extract failed for email '{em.get('subject', '')[:40]}': {type(e).__name__}: {e}")
+            print(f"extract failed for email '{em.get('subject', '')[:40]}': {type(e).__name__}: {e}", flush=True)
     if emails and failed == len(emails):
         raise RuntimeError("Every email failed during extraction")
     existing = sheet.read("jobs")
